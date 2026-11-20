@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light mode: remaps the dark slate utilities used throughout the app. */
+html.light .bg-slate-950 { background-color: #f8fafc; }
+html.light .bg-slate-900 { background-color: #ffffff; }
+html.light .bg-slate-800 { background-color: #e2e8f0; }
+html.light .text-slate-100, html.light .text-slate-200 { color: #0f172a; }
+html.light .text-slate-300 { color: #334155; }
+html.light .text-slate-400, html.light .text-slate-500 { color: #64748b; }
+html.light .border-slate-800, html.light .border-slate-700, html.light .border-slate-600 { border-color: #cbd5e1; }
+html.light .text-emerald-400 { color: #047857; }
