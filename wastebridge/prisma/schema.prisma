@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  DRIVER
+  ADMIN
+  AGENCY
+}
+enum DumpsterSize {
+  YD10
+  YD20
+  YD30
+  YD40
+}
+enum AssetStatus {
+  AVAILABLE
+  DEPLOYED
+  MAINTENANCE
+}
+enum JobType {
+  DELIVERY
+  PICKUP
+  SWAP
+  DUMP_RETURN
+}
+enum JobStatus {
+  PENDING
+  ASSIGNED
+  EN_ROUTE
+  ARRIVED
+  DELIVERED
+  PICKED_UP
+  COMPLETED
+  CANCELLED
+}
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+}
+
+model Company {
+  id         String      @id @default(cuid())
+  name       String
+  users      User[]
+  yards      Yard[]
+  customers  Customer[]
+  trucks     Truck[]
+  dumpsters  Dumpster[]
+  orders     Order[]
+  createdAt  DateTime    @default(now())
+}
+model Yard {
+  id        String     @id @default(cuid())
+  companyId String
+  company   Company    @relation(fields: [companyId], references: [id])
+  name      String
+  lat       Float
+  lng       Float
+  trucks    Truck[]
+  dumpsters Dumpster[]
+}
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String
+  passwordHash String
+  role         Role
+  companyId    String?
+  company      Company?       @relation(fields: [companyId], references: [id])
+  customer     Customer?
+  driver       Driver?
+  notifications Notification[]
+  createdAt    DateTime       @default(now())
+}
+model Customer {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  phone     String?
+  address   String?
+  orders    Order[]
+  invoices  Invoice[]
+}
+model Driver {
+  id      String  @id @default(cuid())
+  userId  String  @unique
+  user    User    @relation(fields: [userId], references: [id])
+  truckId String? @unique
+  truck   Truck?  @relation(fields: [truckId], references: [id])
+  orders  Order[]
+  routes  Route[]
+}
+model Truck {
+  id        String     @id @default(cuid())
+  companyId String
+  company   Company    @relation(fields: [companyId], references: [id])
+  yardId    String?
+  yard      Yard?      @relation(fields: [yardId], references: [id])
+  plate     String
+  lat       Float?
+  lng       Float?
+  driver    Driver?
+  carrying  Dumpster[] @relation("TruckCargo")
+}
+model Dumpster {
+  id        String       @id @default(cuid())
+  companyId String
+  company   Company      @relation(fields: [companyId], references: [id])
+  yardId    String?
+  yard      Yard?        @relation(fields: [yardId], references: [id])
+  truckId   String?
+  truck     Truck?       @relation("TruckCargo", fields: [truckId], references: [id])
+  code      String       @unique
+  size      DumpsterSize
+  status    AssetStatus  @default(AVAILABLE)
+  lat       Float?
+  lng       Float?
+  orders    Order[]
+}
+model Order {
+  id          String    @id @default(cuid())
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  driverId    String?
+  driver      Driver?   @relation(fields: [driverId], references: [id])
+  dumpsterId  String?
+  dumpster    Dumpster? @relation(fields: [dumpsterId], references: [id])
+  routeId     String?
+  route       Route?    @relation(fields: [routeId], references: [id])
+  type        JobType
+  status      JobStatus @default(PENDING)
+  size        DumpsterSize
+  address     String
+  lat         Float
+  lng         Float
+  scheduledAt DateTime
+  invoice     Invoice?
+  logs        ServiceLog[]
+  createdAt   DateTime  @default(now())
+  @@index([companyId, status])
+}
+model Route {
+  id       String   @id @default(cuid())
+  driverId String
+  driver   Driver   @relation(fields: [driverId], references: [id])
+  date     DateTime
+  orders   Order[]
+}
+model Invoice {
+  id        String        @id @default(cuid())
+  orderId   String        @unique
+  order     Order         @relation(fields: [orderId], references: [id])
+  customerId String
+  customer  Customer      @relation(fields: [customerId], references: [id])
+  amountCents Int
+  status    InvoiceStatus @default(DRAFT)
+  stripeId  String?
+  payments  Payment[]
+  dueAt     DateTime
+}
+model Payment {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+  amountCents Int
+  stripeId    String?
+  paidAt      DateTime @default(now())
+}
+model ServiceLog {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  status    JobStatus
+  photoUrl  String?
+  note      String?
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+}
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

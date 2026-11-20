@@ -1,0 +1,51 @@
+{
+  "name": "wastebridge",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "test": "vitest run"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.7.0",
+    "@prisma/client": "^6.0.0",
+    "@react-three/drei": "^10.0.0",
+    "@react-three/fiber": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "framer-motion": "^11.0.0",
+    "mapbox-gl": "^3.8.0",
+    "next": "^15.1.0",
+    "next-auth": "^5.0.0-beta.25",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-map-gl": "^7.1.7",
+    "three": "^0.170.0",
+    "zod": "^3.24.0",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0",
+    "stripe": "^17.4.0",
+    "recharts": "^2.15.0",
+    "pdfkit": "^0.15.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/three": "^0.170.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "prisma": "^6.0.0",
+    "tailwindcss": "^3.4.16",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.8",
+    "@types/pdfkit": "^0.13.7"
+  }
+}
